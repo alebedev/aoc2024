@@ -35,34 +35,19 @@ def part2(input: str) -> int:
     adj_list, requests = input.split("\n\n")
     graph = parse_graph(adj_list)
     # print("deps: %s" % graph)
-    print("top_order: %s" % top_order(graph) )
     sum = 0
-    master_order = {item: i for (i, item) in enumerate(top_order(graph))}
-    print("master_order: %s" % master_order)
     for line in requests.splitlines():
         req = [int(x) for x in line.split(",")]
         if not is_valid_order(req, graph):
-            valid_order = sorted(req, key = lambda x: master_order[x] if x in master_order else -1)
-            print("invalid %s" % req)
-            print("valid: %s" % valid_order)
-            sum += valid_order[len(req) // 2]
+            # print("invalid %s" % req)
+            target_reqs = len(req) // 2
+            for item in req:
+                rest = set(req).difference({item})
+                if item in graph:
+                    if len(graph[item].intersection(rest)) == target_reqs:
+                        sum += item
+                        break
     return sum
-
-def top_order(graph: dict[int, set[int]]) -> list[int]:
-    result = []
-    visited = set()
-    def visit(x: int):
-        if x in visited:
-            return
-        visited.add(x)
-        if x in graph:
-            for n in graph[x]:
-                visit(n)
-        result.insert(0, x)
-    for key in graph.keys():
-        visit(key)
-    return result
-
 
 if __name__ == "__main__":
     test_input = textwrap.dedent("""
