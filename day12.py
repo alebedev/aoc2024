@@ -10,7 +10,13 @@ def part1(input: str) -> int:
     return sum
 
 def part2(input: str) -> int:
-    return 0
+    grid = parse_input(input)
+    plots = by_plots(grid)
+    # print(plots)
+    sum = 0
+    for p in plots:
+        sum += plot_score2(p, grid)
+    return sum
 
 def parse_input(input: str):
     return [
@@ -73,6 +79,15 @@ def plot_score(plot):
                 perimeter -= 1
     return area * perimeter
 
+def plot_score2(plot, grid):
+    cells = set(plot)
+    area = 0
+    sides = 0
+    for pos in plot:
+        area += 1
+    print(plot, area, sides)
+    return area * sides
+
 if __name__ == "__main__":
     test_input = textwrap.dedent("""
     AAAA
@@ -105,5 +120,5 @@ if __name__ == "__main__":
     print(f"Part 1 test 3, 772 expected: {part1(test_input3)}")
     print(f"Part 1: {part1(input)}")
     #
-    # print(f"Part 2 test, ? expected: {part2(test_input)}")
+    print(f"Part 2 test, 80 expected: {part2(test_input)}")
     # print(f"Part 2: {part2(input)}")
