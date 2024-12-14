@@ -1,5 +1,7 @@
 import re
+import sys
 import textwrap
+from itertools import groupby
 from json.encoder import INFINITY
 
 
@@ -11,8 +13,15 @@ def part1(input: str, w: int, h: int) -> int:
     # print(f"Post-steps: {[x[0] for x in step]}")
     return score(step, w, h)
 
-def part2(input: str) -> int:
-    return 0
+def part2(input: str, w: int, h: int) -> int:
+    data = parse_input(input)
+    step = data
+    for i in range(40000):
+        step = simulate(step, w, h)
+        print(f"Step {i}:")
+        print_state(step, w, h)
+        print()
+        print()
 
 def parse_input(input: str):
     result = []
@@ -61,6 +70,28 @@ def score(data, w,  h):
             q4 += 1
     return q1 * q2 * q3 * q4
 
+def print_state(state, w, h):
+    robots = [x[0] for x in state]
+    robots_by_pos = {}
+    for robot in robots:
+        robots_by_pos[robot] = 1 + robots_by_pos.get(robot, 0)
+    duplicates = set()
+    for (k, v) in robots_by_pos.items():
+        if v > 1:
+            duplicates.add(k)
+    if len(duplicates) == 0:
+        print("No duplicates")
+    else:
+        print(f"Duplicates: {duplicates}")
+
+    for y in range(h):
+        for x in range(w):
+            if (x, y) in robots_by_pos:
+                sys.stdout.write(f"{robots_by_pos[(x, y)]}")
+            else:
+                sys.stdout.write(".")
+        sys.stdout.write("\n")
+
 if __name__ == "__main__":
     test_input = textwrap.dedent("""
     p=0,4 v=3,-3
@@ -80,5 +111,6 @@ if __name__ == "__main__":
     print(f"Part 1 test, 12 expected: {part1(test_input, w=11, h=7)}")
     print(f"Part 1: {part1(input, w=101, h=103)}")
     #
-    # print(f"Part 2 test, ? expected: {part2(test_input)}")
-    # print(f"Part 2: {part2(input)}")
+    #  python day14.py > day14.out.txt
+    # Then search for 11111111111111111 in output and offset step index by +1
+    part2(input, w=101, h=103)
