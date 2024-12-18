@@ -1,3 +1,4 @@
+import heapq
 import textwrap
 import re
 
@@ -14,9 +15,20 @@ def part1(input: str, w, h, walls_count):
     return find_paths(maze)
 
 
-def part2(input: str):
-    return 0
-
+def part2(input: str, w, h):
+    walls = parse_input(input)
+    for i in range(len(walls)):
+        maze = {
+            'walls': set(walls[:i]),
+            'width': w,
+            'height': h,
+            'start': (0, 0),
+            'target': (w - 1, h - 1),
+        }
+        path = find_paths(maze)
+        print(i, path, walls[:i][-1] if i > 0 else None)
+        if path is None:
+            return walls[i - 1]
 
 def parse_input(input: str):
     result = []
@@ -30,16 +42,20 @@ def find_paths(maze):
     costs = {
         maze['start']: 0
     }
-    queue = [(maze['start'], 0)]
+    def best_cost(pos):
+        return abs(maze['target'][0] - pos[0]) + abs(maze['target'][1] - pos[1])
+    queue = [(best_cost(maze['start']), 0, maze['start'])]
     while queue:
-        (pos, cost) = queue.pop()
+        (best_estimate, cost, pos) = heapq.heappop(queue)
+        if maze['target'] in costs and costs[maze['target']] < best_estimate:
+            break
         for n in neighbors(maze, pos):
             if n in costs:
                 if costs[n] <= cost + 1:
                     continue
             costs[n] = cost + 1
-            queue.append((n, cost + 1))
-    return costs[maze['target']]
+            queue.append((best_cost(n) + cost + 1, cost + 1, n))
+    return costs[maze['target']] if maze['target'] in costs else None
 
 
 def neighbors(maze, pos):
@@ -85,3 +101,6 @@ if __name__ == "__main__":
     input = open("day18.txt").read()
     print(f"Part 1 test, 22 expected: {part1(test_input1, w=7, h=7, walls_count=12)}")
     print(f"Part 1: {part1(input, w=71, h=71, walls_count=1024)}")
+
+    print(f"Part 1 test, (6,1) expected: {part2(test_input1, w=7, h=7)}")
+    print(f"Part 2: {part2(input, w=71, h=71)}")
