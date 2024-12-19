@@ -1,7 +1,4 @@
-import heapq
 import textwrap
-import re
-
 
 def part1(input: str):
     (parts, goals) = parse_input(input)
@@ -11,8 +8,12 @@ def part1(input: str):
             possible += 1
     return possible
 
-def part2(input: str, w, h):
-    return 0
+def part2(input: str):
+    (parts, goals) = parse_input(input)
+    sum = 0
+    for goal in goals:
+        sum += combinations(goal, parts)
+    return sum
 
 def parse_input(input: str):
     lines = input.splitlines()
@@ -28,6 +29,20 @@ def is_possible(goal, parts):
             if is_possible(goal[len(part):], parts):
                 return True
     return False
+
+cache = {}
+def combinations(goal, parts):
+    if goal in cache:
+        return cache[goal]
+    result = 0
+    if goal == '':
+        result = 1
+    else:
+        for part in parts:
+            if goal.startswith(part):
+                result += combinations(goal[len(part):], parts)
+    cache[goal] = result
+    return result
 
 if __name__ == "__main__":
     test_input1 = textwrap.dedent("""
@@ -46,3 +61,5 @@ if __name__ == "__main__":
     print(f"Part 1 test, 6 expected: {part1(test_input1)}")
     print(f"Part 1: {part1(input)}")
 
+    print(f"Part 1 test, 16 expected: {part2(test_input1)}")
+    print(f"Part 2: {part2(input)}")
