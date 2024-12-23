@@ -11,16 +11,25 @@ def part2(input: str):
         seed: gen_secrets(seed, 2000)
         for seed in seeds
     }
-    all_seqs = set()
+    all_seqs = {}
     for (seed, secrets) in secrets.items():
         prices = [x % 10 for x in secrets]
         diffs = [x - y for x, y in zip(prices[1:], prices)]
         for (price, diff0, diff1, diff2, diff3) in zip(prices[4:], diffs, diffs[1:], diffs[2:], diffs[3:]):
             seq = (diff0, diff1, diff2, diff3)
-            all_seqs.add(seq)
+            if seq not in all_seqs:
+                all_seqs[seq] = {}
+            if seed not in all_seqs[seq]:
+                all_seqs[seq][seed] = price
     print(f"Possible sequences: {len(all_seqs)}")
-    best_seq = max(all_seqs, key=lambda seq: sum_at_seq(seeds, seq))
-    return sum_at_seq(seeds, best_seq)
+    result = 0
+    for (seq, prices) in all_seqs.items():
+        cur = sum(prices.values())
+        result = max(result, cur)
+    # print(f"Result: {result}")
+    return result
+    # best_seq = max(all_seqs, key=lambda seq: sum_at_seq(seeds, seq))
+    # return sum_at_seq(seeds, best_seq)
 
 def parse_input(input: str):
     return [
